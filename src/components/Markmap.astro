@@ -1,5 +1,6 @@
 ---
 import { Transformer } from 'markmap-lib';
+import { addBibleLinksToMarkdown } from '../utils/bibleLinks';
 
 interface Props {
   id?: string;
@@ -14,142 +15,6 @@ if (!content) {
 }
 
 const elementId = id ?? `markmap-${Math.random().toString(36).slice(2, 9)}`;
-
-// // URL base para BibleGateway
-// const BIBLE_GATEWAY_URL = 'https://www.biblegateway.com/passage/?search=';
-// const BIBLE_VERSION = 'RVR1960';
-
-// // Función para convertir referencias bíblicas en enlaces
-// const addBibleLinks = (md: string) => {
-//   // Patrón mejorado para detectar referencias bíblicas (ej: "Juan 3:16", "1 Corintios 13:1-13", "Salmos 23:1")
-//   // Soporta libros con números (1 Juan, 2 Corintios), con tildes y la letra ñ
-//   const bibleRefPattern = /^(\s*-\s+)([0-9]?\s*[A-ZÁÉÍÓÚa-záéíóúñÑ]+(?:\s+[A-ZÁÉÍÓÚa-záéíóúñÑ]+)*\s+[0-9]+:[0-9]+(?:-[0-9]+)?)$/gm;
-  
-//   return md.replace(bibleRefPattern, (match, prefix, reference) => {
-//     // Codificar la referencia para URL
-//     const encodedRef = encodeURIComponent(reference.trim());
-//     // Crear el enlace HTML
-//     return `${prefix}<a href="${BIBLE_GATEWAY_URL}${encodedRef}&version=${BIBLE_VERSION}" target="_blank">${reference}</a>`;
-//   });
-// };
-
-// =============================
-// 📖 Conversor de referencias bíblicas a enlaces de Bible.com
-// Autor: Degui Dev
-// =============================
-
-// 🌐 URL base para Bible.com (versión español)
-const BIBLE_COM_BASE_URL = 'https://www.bible.com/es/bible/';
-
-// 🔢 Código de versión "149" = Reina-Valera 1960
-const BIBLE_COM_VERSION_CODE = '149';
-
-// 📜 Versión textual (para mostrar en el enlace)
-const BIBLE_VERSION = 'RVR1960';
-
-// 📚 Mapa de abreviaturas oficiales de Bible.com
-// (Solo algunos ejemplos, puedes completar con los demás libros)
-const bookAbbrevMap: Record<string, string> = {
-  // Antiguo Testamento
-  "Génesis": "GEN",
-  "Éxodo": "EXO",
-  "Levítico": "LEV",
-  "Números": "NUM",
-  "Deuteronomio": "DEU",
-  "Josué": "JOS",
-  "Jueces": "JDG",
-  "Rut": "RUT",
-  "1 Samuel": "1SA",
-  "2 Samuel": "2SA",
-  "1 Reyes": "1KI",
-  "2 Reyes": "2KI",
-  "1 Crónicas": "1CH",
-  "2 Crónicas": "2CH",
-  "Esdras": "EZR",
-  "Nehemías": "NEH",
-  "Ester": "EST",
-  "Job": "JOB",
-  "Salmos": "PSA",
-  "Proverbios": "PRO",
-  "Eclesiastés": "ECC",
-  "Cantares": "SNG",
-  "Isaías": "ISA",
-  "Jeremías": "JER",
-  "Lamentaciones": "LAM",
-  "Ezequiel": "EZK",
-  "Daniel": "DAN",
-  "Oseas": "HOS",
-  "Joel": "JOL",
-  "Amós": "AMO",
-  "Abdías": "OBA",
-  "Jonás": "JON",
-  "Miqueas": "MIC",
-  "Nahúm": "NAM",
-  "Habacuc": "HAB",
-  "Sofonías": "ZEP",
-  "Hageo": "HAG",
-  "Zacarías": "ZEC",
-  "Malaquías": "MAL",
-
-  // Nuevo Testamento
-  "Mateo": "MAT",
-  "Marcos": "MRK",
-  "Lucas": "LUK",
-  "Juan": "JHN",
-  "Hechos": "ACT",
-  "Romanos": "ROM",
-  "1 Corintios": "1CO",
-  "2 Corintios": "2CO",
-  "Gálatas": "GAL",
-  "Efesios": "EPH",
-  "Filipenses": "PHP",
-  "Colosenses": "COL",
-  "1 Tesalonicenses": "1TH",
-  "2 Tesalonicenses": "2TH",
-  "1 Timoteo": "1TI",
-  "2 Timoteo": "2TI",
-  "Tito": "TIT",
-  "Filemón": "PHM",
-  "Hebreos": "HEB",
-  "Santiago": "JAS",
-  "1 Pedro": "1PE",
-  "2 Pedro": "2PE",
-  "1 Juan": "1JN",
-  "2 Juan": "2JN",
-  "3 Juan": "3JN",
-  "Judas": "JUD",
-  "Apocalipsis": "REV",
-};
-
-// ✝️ Función principal para convertir referencias a enlaces de Bible.com
-const addBibleLinks = (md: string): string => {
-  // Patrón para detectar referencias bíblicas (ej: "- Juan 3:16", "- 1 Corintios 13:1-13")
-  const bibleRefPattern =
-    /^(\s*-\s+)([0-9]?\s*[A-ZÁÉÍÓÚa-záéíóúñÑ]+(?:\s+[A-ZÁÉÍÓÚa-záéíóúñÑ]+)*\s+[0-9]+:[0-9]+(?:-[0-9]+)?)$/gm;
-
-  return md.replace(bibleRefPattern, (match, prefix, reference) => {
-    // Separar el nombre del libro y el capítulo/versículos
-    const parts = reference.trim().split(/\s+/);
-    const bookName = parts.slice(0, -1).join(' ');
-    const chapterAndVerses = parts.slice(-1)[0];
-
-    // Buscar la abreviatura correspondiente
-    const abbrev = bookAbbrevMap[bookName];
-    if (!abbrev) {
-      console.warn(`No se encontró abreviatura para: ${bookName}`);
-      return match; // Devolver el texto original si no se encuentra el libro
-    }
-
-    // Reemplazar ":" por "." y mantener el rango si existe (ej: 12:1-2 → 12.1-2)
-    const formattedVerses = chapterAndVerses.replace(':', '.');
-
-    // Construir la URL final
-    const url = `${BIBLE_COM_BASE_URL}${BIBLE_COM_VERSION_CODE}/${abbrev}.${formattedVerses}`;
-
-    // Devolver el texto con enlace HTML
-    return `${prefix}<a href="${url}" target="_blank">${reference}</a>`;
-  });
-};
 
 
 
@@ -172,7 +37,7 @@ const formatMarkdown = (md: string) => {
   result = result.replace(/(## .+)\n-/g, '$1\n\n-');
   
   // Agregar enlaces a referencias bíblicas
-  result = addBibleLinks(result);
+  result = addBibleLinksToMarkdown(result);
   
   return result;
 };

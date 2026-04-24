@@ -1,0 +1,44 @@
+---
+/**
+ * 📖 BibleVerse - Componente para mostrar versículos bíblicos con enlace a Bible.com
+ * 
+ * Uso:
+ *   <BibleVerse r="Juan 3:16" />
+ *   <BibleVerse r="Juan 3:16" t="Porque de tal manera amó Dios al mundo..." />
+ */
+
+import { getBibleComUrl } from '../utils/bibleLinks';
+
+interface Props {
+  r: string;  // reference
+  t?: string; // text (opcional)
+}
+
+const { r, t } = Astro.props;
+const url = getBibleComUrl(r);
+---
+
+{url ? (
+  <a 
+    href={url} 
+    target="_blank" 
+    rel="noopener noreferrer"
+    class="bible-verse"
+    title={`Leer ${r} en Bible.com`}
+  >
+    <strong>{r}</strong>{t && <span> — <em>"{t}"</em></span>}
+  </a>
+) : (
+  <strong>{r}</strong>
+)}
+
+<style>
+  .bible-verse {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+
+  .bible-verse:hover {
+    text-decoration: underline;
+  }
+</style>

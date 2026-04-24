@@ -8,6 +8,9 @@ import { sidebarPredicas } from './src/content/docs/predicas/sidebar.config.ts';
 import { sidebarSermones } from './src/content/docs/sermones/sidebar.config.ts';
 import { sidebarEnsenanzasPracticas } from './src/content/docs/ensenanzas-practicas/sidebar.config.ts';
 import { sidebarDoctrinasFundamentales } from './src/content/docs/doctrinas-fundamentales/sidebar.config.ts';
+import { sidebarFundamentosFe } from './src/content/docs/fundamentos-fe/sidebar.config.ts';
+import { vidaCristianaSidebar } from './src/content/docs/vida-cristiana/sidebar.config.ts';
+
 
 // https://astro.build/config
 export default defineConfig({
@@ -32,6 +35,8 @@ export default defineConfig({
 				sidebarPredicas,
 				sidebarSermones,
 				sidebarEnsenanzasPracticas,
+				sidebarFundamentosFe,
+				vidaCristianaSidebar,
 				// sidebarDoctrinasFundamentales
 			],
 		}),

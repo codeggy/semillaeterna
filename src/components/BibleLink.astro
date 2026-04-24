@@ -1,0 +1,94 @@
+---
+/**
+ * 📖 BibleLink - Componente para mostrar referencias bíblicas con enlace a Bible.com
+ * 
+ * Uso:
+ *   <BibleLink reference="Juan 3:16" />
+ *   <BibleLink reference="Romanos 8:28" showIcon={true} />
+ *   <BibleLink reference="1 Corintios 13:4-7" text="El amor es paciente..." />
+ */
+
+import { getBibleComUrl } from '../utils/bibleLinks';
+
+interface Props {
+  reference: string;
+  text?: string;
+  showIcon?: boolean;
+  class?: string;
+}
+
+const { reference, text, showIcon = true, class: className = '' } = Astro.props;
+
+const url = getBibleComUrl(reference);
+const displayText = text || reference;
+const isValid = url !== null;
+---
+
+{isValid ? (
+  <a 
+    href={url} 
+    target="_blank" 
+    rel="noopener noreferrer"
+    class:list={['bible-link', className]}
+    title={`Leer ${reference} en Bible.com (RVR1960)`}
+  >
+    {showIcon && (
+      <span class="bible-icon">📖</span>
+    )}
+    <span class="bible-text">{displayText}</span>
+    <span class="external-icon">↗</span>
+  </a>
+) : (
+  <span class:list={['bible-link-invalid', className]}>
+    {displayText}
+  </span>
+)}
+
+<style>
+  .bible-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    background: var(--sl-color-accent-low);
+  }
+
+  .bible-link:hover {
+    background: var(--sl-color-accent);
+    color: var(--sl-color-white);
+  }
+
+  .bible-link:hover .bible-icon,
+  .bible-link:hover .external-icon {
+    color: var(--sl-color-white);
+  }
+
+  .bible-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--sl-color-text-accent);
+    flex-shrink: 0;
+  }
+
+  .external-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    color: var(--sl-color-gray-4);
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  .bible-text {
+    font-style: italic;
+  }
+
+  .bible-link-invalid {
+    color: var(--sl-color-gray-3);
+    font-style: italic;
+  }
+</style>
